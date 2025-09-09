@@ -1,0 +1,70 @@
+# Node modules (will be installed on EAS build server)
+node_modules
+.expo
+.expo-shared
+android
+ios
+build
+dist
+web-build
+coverage
+*.log
+*.DS_Store
+.vscode
+.idea
+*.mp4
+*.mov
+*.zip
+*.tar
+*.gz
+
+# Yarn cache and unplugged packages
+.yarn/cache
+.yarn/unplugged
+
+# iOS specific (should be rebuilt on EAS)
+ios/Pods
+ios/build
+ios/DerivedData
+
+# Build output
+dist
+build
+web-build
+.expo
+.expo-shared
+
+# System files
+.DS_Store
+*.log
+
+# Git
+.git
+.gitignore
+
+# IDE/editor
+.vscode
+.idea
+
+# Test coverage
+coverage
+
+# Mac system files
+*.DS_Store
+
+# Android/iOS native build folders (if present)
+android
+ios
+
+# Large assets (if not needed for build)
+*.mov
+*.psd
+*.ai
+*.sketch
+*.zip
+*.tar
+*.gz
+
+# Expo/CI
+eas-build
+eas-cache
