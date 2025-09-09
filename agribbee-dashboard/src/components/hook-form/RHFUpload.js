@@ -1,0 +1,121 @@
+import PropTypes from 'prop-types';
+// form
+import { useFormContext, Controller } from 'react-hook-form';
+// @mui
+import { FormHelperText } from '@mui/material';
+//
+import { UploadAvatar, Upload, UploadBox } from '../upload';
+
+// ----------------------------------------------------------------------
+
+RHFUploadAvatar.propTypes = {
+  name: PropTypes.string,
+};
+
+// ----------------------------------------------------------------------
+
+export function RHFUploadAvatar({ name, ...other }) {
+  const { control } = useFormContext();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState: { error } }) => (
+        <div>
+          <UploadAvatar
+            accept={{
+              'image/*': [],
+              'video/*': [],
+            }}
+            error={!!error}
+            file={field.value}
+            {...other}
+          />
+
+          {!!error && (
+            <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+              {error.message}
+            </FormHelperText>
+          )}
+        </div>
+      )}
+    />
+  );
+}
+
+// ----------------------------------------------------------------------
+
+RHFUploadBox.propTypes = {
+  name: PropTypes.string,
+};
+
+export function RHFUploadBox({ name, ...other }) {
+  const { control } = useFormContext();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState: { error } }) => (
+        <UploadBox files={field.value} error={!!error} {...other} />
+      )}
+    />
+  );
+}
+
+// ----------------------------------------------------------------------
+
+RHFUpload.propTypes = {
+  name: PropTypes.string,
+  multiple: PropTypes.bool,
+  helperText: PropTypes.node,
+  files: PropTypes.array,
+  file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
+
+export function RHFUpload({ name, multiple, file, files, helperText, ...other }) {
+  const { control } = useFormContext();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState: { error } }) =>
+        multiple ? (
+          <Upload
+            multiple
+            accept={{
+              'image/*': [],
+              'video/*': [],
+            }}
+            files={field.value.length === 0 ? files : field.value}
+            error={!!error}
+            helperText={
+              (!!error || helperText) && (
+                <FormHelperText error={!!error} sx={{ px: 2 }}>
+                  {error ? error?.message : helperText}
+                </FormHelperText>
+              )
+            }
+            {...other}
+          />
+        ) : (
+          <Upload
+            accept={{ 'image/*': [], 'video/*': [] }}
+            file={field.value || file}
+            error={!!error}
+            helperText={
+              (!!error || helperText) && (
+                <FormHelperText error={!!error} sx={{ px: 2 }}>
+                  {error ? error?.message : helperText}
+                </FormHelperText>
+              )
+            }
+            {...other}
+          />
+        )
+      }
+    />
+  );
+}

@@ -1,0 +1,160 @@
+name: agribbee-main
+
+services:
+  # MongoDB Service
+  mongo:
+    image: mongo:7.0.12
+    container_name: agribbee-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+      # - ./agribbee-dump:/docker-entrypoint-initdb.d  # Mount dump
+    ports:
+      - "27017:27017"
+    networks:
+      - agribbee-main
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Backend API (Node.js)
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agribbee-node-server
+    restart: unless-stopped
+    image: agribbee-server
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env.docker
+    networks:
+      - agribbee-main
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # Frontend (Next.js)
+  itrucksea-web:
+    build:
+      context: ./iTruckSeaApplications/web_app
+      dockerfile: ./Dockerfile
+    container_name: agribbee-itrucksea-client
+    restart: unless-stopped
+    image: agribbee-itrucksea-client
+    volumes:
+      - ./iTruckSeaApplications/web_app:/app
+      - /app/node_modules
+    ports:
+      - "3031:3031"
+    env_file:
+      - ./iTruckSeaApplications/web_app/.env
+    networks:
+      - agribbee-main
+    depends_on:
+      api:
+        condition: service_started
+    command: npm run dev -- --hostname 0.0.0.0
+
+  # Frontend (Next.js)
+  agribbee-web:
+    build:
+      context: ./agribbee-frontend
+      dockerfile: ./Dockerfile
+    container_name: agribbee-web-client
+    restart: unless-stopped
+    image: agribbee-web-client
+    volumes:
+      - ./agribbee-frontend:/app
+      - /app/node_modules
+    ports:
+      - "3032:3032"
+    env_file:
+      - ./agribbee-frontend/.env.docker
+    networks:
+      - agribbee-main
+    depends_on:
+      api:
+        condition: service_started
+    command: npm run dev -- --hostname 0.0.0.0
+
+  # Frontend (Next.js)
+  agribbee-dashboard:
+    build:
+      context: ./agribbee-dashboard
+      dockerfile: ./Dockerfile
+    container_name: agribbee-dashboard-client
+    restart: unless-stopped
+    image: agribbee-dashboard-client
+    volumes:
+      - ./agribbee-dashboard:/app
+      - /app/node_modules
+    ports:
+      - "3033:3033"
+    env_file:
+      - ./agribbee-dashboard/.env
+    networks:
+      - agribbee-main
+    depends_on:
+      api:
+        condition: service_started
+    command: npm run dev -- --hostname 0.0.0.0
+
+  caddy:
+    image: caddy:2.4.5-alpine
+    restart: unless-stopped
+    container_name: agribbee-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - agribbee-main
+    depends_on:
+      - api
+      - itrucksea-web
+
+# Define persistent volumes
+volumes:
+  mongo_data:
+  caddy_data:
+  caddy_config:
+
+# Define network
+networks:
+  agribbee-main:
+    driver: bridge
+
+  # React Native Mobile App
+  # itrucksea-mobile:
+  #   build:
+  #     context: ./iTruckSeaApplications/mobile_app
+  #     dockerfile: ./Dockerfile
+  #   container_name: agribbee-mobile-client
+  #   restart: unless-stopped
+  #   image: agribbee-mobile-client
+  #   volumes:
+  #     - ./iTruckSeaApplications/mobile_app:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "8081:8081" # Metro bundler port
+  #     - "19000:19000" # Expo port (if using Expo)
+  #     - "19001:19001" # Expo dev tools
+  #     - "19002:19002" # Expo dev tools
+  #   env_file:
+  #     - ./iTruckSeaApplications/mobile_app/.env
+  #   networks:
+  #     - agribbee-main
+  #   depends_on:
+  #     api:
+  #       condition: service_started
+  #   command: npm start

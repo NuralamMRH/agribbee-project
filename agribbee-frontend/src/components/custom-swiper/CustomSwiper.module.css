@@ -1,0 +1,125 @@
+.button {
+  --swiped: 0;
+  --swiped-blur: 0;
+  --padding: 5px;
+  position: relative;
+  height: 20px;
+  aspect-ratio: 4 / 0.4;
+  font-family: Poppins, sans-serif;
+  border: none;
+  transform: scale(1.5);
+  transition: all 0.3s;
+  border-radius: 50px;
+  background-color: #fff;
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  background-color: #e6ffd3;
+  color: #222;
+  display: flex;
+  border-radius: 50px;
+  align-items: center;
+  transform: translateY(calc(var(--swiped) * -10px));
+  clip-path: inset(0 calc(75px * var(--swiped)) round 50px);
+  padding: var(--padding);
+  transition:
+    transform 0.3s,
+    clip-path 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) var(--delay);
+}
+
+.inner::before {
+  content: "Slide to verify";
+  display: block;
+  margin: 0 auto;
+  opacity: calc(1 - var(--swiped-blur));
+  filter: blur(calc(var(--swiped-blur) * 10px));
+}
+
+button .inner {
+  position: absolute;
+  inset: 0;
+  background-color: #e6ffd3;
+  color: #222;
+  font-size: 12px;
+  display: flex;
+  border-radius: 50px;
+  align-items: center;
+  transform: translateY(calc(var(--swiped) * -10px));
+  clip-path: inset(0 calc(75px * var(--swiped)) round 50px);
+  padding: var(--padding);
+  transition:
+    transform 0.3s,
+    clip-path 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) var(--delay);
+}
+
+.swipeBtn {
+  position: absolute;
+  height: calc(100% - var(--padding) * 2);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle 20px, rgba(2, 255, 86, 0.5), transparent),
+    linear-gradient(var(--accent), var(--accent));
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  box-shadow: 0 0 5px var(--accent);
+  cursor: pointer;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+.button.order .inner::after {
+  content: "✓";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--success);
+  color: white;
+  font-size: 1.4em;
+}
+
+.inner::before {
+  content: "Please slide to verify";
+  display: block;
+  margin: 0 auto;
+  opacity: calc(1 - var(--swiped-blur));
+  filter: blur(calc(var(--swiped-blur) * 10px));
+  font-size: 12px !important;
+}
+
+/* span::after {
+            content: 'Slide to buy';
+            position: absolute;
+            left: 150%;
+            white-space: nowrap;
+        } */
+
+button .inner::after {
+  content: "✓";
+  position: absolute;
+  width: calc(50px - var(--padding) * 1.5);
+  height: calc(50px - var(--padding) * 1.5);
+  left: 50%;
+  transform: translateX(-50%) scale(var(--swiped));
+  border-radius: 50%;
+  background-color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  transition: transform 0.3s var(--delay);
+  z-index: 10;
+}
+
+button.order {
+  --swiped: 1;
+}

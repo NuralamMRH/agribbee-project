@@ -1,0 +1,131 @@
+import PropTypes from 'prop-types';
+import { useState, useEffect, useRef } from 'react';
+// next
+import { useRouter } from 'next/router';
+// hooks
+import useActiveLink from '../../../hooks/useActiveLink';
+//
+import { StyledPopover } from './styles';
+import NavItem from './NavItem';
+
+// ----------------------------------------------------------------------
+
+NavList.propTypes = {
+  data: PropTypes.object,
+  depth: PropTypes.number,
+  hasChild: PropTypes.bool,
+  appStyle: PropTypes.bool,
+  isOffset: PropTypes.bool,
+};
+
+export default function NavList({ appStyle, data, depth, hasChild, isOffset }) {
+  const navRef = useRef(null);
+
+  const { pathname } = useRouter();
+
+  const { active, isExternalLink } = useActiveLink(data.path);
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      handleClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  useEffect(() => {
+    const appBarEl = Array.from(document.querySelectorAll('.MuiAppBar-root'));
+
+    // Reset styles when hover
+    const styles = () => {
+      document.body.style.overflow = '';
+      document.body.style.padding = '';
+      // Apply for Window
+      appBarEl.forEach((elem) => {
+        elem.style.padding = '';
+      });
+    };
+
+    if (open) {
+      styles();
+    } else {
+      styles();
+    }
+  }, [open]);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <NavItem
+        ref={navRef}
+        item={data}
+        depth={depth}
+        open={open}
+        active={active}
+        isExternalLink={isExternalLink}
+        onMouseEnter={handleOpen}
+        onMouseLeave={handleClose}
+        appStyle={appStyle}
+        isOffset={isOffset}
+      />
+
+      {hasChild && (
+        <StyledPopover
+          open={open}
+          anchorEl={navRef.current}
+          isOffset={isOffset}
+          anchorOrigin={
+            depth === 1
+              ? { vertical: 'bottom', horizontal: 'left' }
+              : { vertical: 'center', horizontal: 'right' }
+          }
+          transformOrigin={
+            depth === 1
+              ? { vertical: 'top', horizontal: 'left' }
+              : { vertical: 'center', horizontal: 'left' }
+          }
+          PaperProps={{
+            onMouseEnter: handleOpen,
+            onMouseLeave: handleClose,
+          }}
+        >
+          <NavSubList appStyle={appStyle} data={data.children} depth={depth} isOffset={isOffset} />
+        </StyledPopover>
+      )}
+    </>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+NavSubList.propTypes = {
+  data: PropTypes.array,
+  depth: PropTypes.number,
+  appStyle: PropTypes.bool,
+  isOffset: PropTypes.bool,
+};
+
+function NavSubList({ appStyle, data, depth, isOffset }) {
+  return (
+    <>
+      {data.map((list) => (
+        <NavList
+          key={list.title + list.path}
+          data={list}
+          depth={depth + 1}
+          hasChild={!!list.children}
+          appStyle={appStyle}
+          isOffset={isOffset}
+        />
+      ))}
+    </>
+  );
+}

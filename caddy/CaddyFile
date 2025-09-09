@@ -1,0 +1,27 @@
+{
+  local_certs
+}
+
+# Reverse Proxy for Frontend(Next.js)
+
+itrucksea.localhost {
+  encode gzip
+  reverse_proxy itrucksea-web:3031
+}
+
+agribbee.localhost {
+  encode gzip
+  reverse_proxy agribbee-web:3000
+}
+
+agribbee-dashboard.localhost {
+  encode gzip
+  reverse_proxy agribbee-web:3000
+}
+
+
+
+# Reverse Proxy for Backend (Node.js API)
+api.auth.localhost {
+  reverse_proxy api:8080
+}
